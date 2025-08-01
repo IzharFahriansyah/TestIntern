@@ -2,13 +2,13 @@
 // filepath: d:\laragon\www\ApiManpro\routes\api.php
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProjectController;
 use Illuminate\Support\Facades\Route;
 
-// Public routes (tidak perlu login)
+// Public routes
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
-// Test route untuk cek koneksi
 Route::get('/test', function () {
     return response()->json([
         'message' => 'API is working!',
@@ -16,20 +16,31 @@ Route::get('/test', function () {
     ]);
 });
 
-// Protected routes (perlu login/token)
+// Protected routes (perlu login)
 Route::middleware('auth:sanctum')->group(function () {
     // Auth routes
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
-    Route::post('/change-password', [AuthController::class, 'changePassword']);
     
-    // User CRUD routes (hanya admin)
+    // Project routes - ACCESSIBLE BY ALL AUTHENTICATED USERS
+    Route::get('/projects', [ProjectController::class, 'index']);
+    Route::get('/projects/{id}', [ProjectController::class, 'show']);
+    Route::get('/projects/{id}/members', [ProjectController::class, 'getMembers']);
+    
+    // Admin only routes
     Route::middleware('admin')->group(function () {
+        // User CRUD
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
         Route::get('/users/{id}', [UserController::class, 'show']);
         Route::put('/users/{id}', [UserController::class, 'update']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
-        Route::post('/users/{id}/toggle-status', [UserController::class, 'toggleStatus']);
+        
+        // Project management (admin only)
+        Route::post('/projects', [ProjectController::class, 'store']);
+        Route::put('/projects/{id}', [ProjectController::class, 'update']);
+        Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
+        Route::post('/projects/{id}/members', [ProjectController::class, 'addMember']);
+        Route::delete('/projects/{id}/members/{userId}', [ProjectController::class, 'removeMember']);
     });
 });
