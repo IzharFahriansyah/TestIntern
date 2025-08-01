@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -25,7 +26,16 @@ Route::middleware('auth:sanctum')->group(function () {
     // Project routes - ACCESSIBLE BY ALL AUTHENTICATED USERS
     Route::get('/projects', [ProjectController::class, 'index']);
     Route::get('/projects/{id}', [ProjectController::class, 'show']);
-    Route::get('/projects/{id}/members', [ProjectController::class, 'getMembers']);
+    Route::get('/projects/{id}/members', [ProjectController::class, 'members']);
+    Route::get('/projects/{id}/tasks', [TaskController::class, 'getProjectTasks']);
+    
+    // Task routes - ACCESSIBLE BY ALL AUTHENTICATED USERS
+    Route::get('/tasks', [TaskController::class, 'index']);
+    Route::get('/tasks/{id}', [TaskController::class, 'show']);
+    Route::get('/my-tasks', [TaskController::class, 'getMyTasks']);
+    Route::post('/tasks', [TaskController::class, 'store']);
+    Route::put('/tasks/{id}', [TaskController::class, 'update']);
+    Route::post('/tasks/{id}/assign', [TaskController::class, 'assignTask']);
     
     // Admin only routes
     Route::middleware('admin')->group(function () {
@@ -42,5 +52,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
         Route::post('/projects/{id}/members', [ProjectController::class, 'addMember']);
         Route::delete('/projects/{id}/members/{userId}', [ProjectController::class, 'removeMember']);
+        
+        // Task management (admin only)
+        Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
     });
 });

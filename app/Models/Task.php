@@ -17,6 +17,7 @@ class Task extends Model
         'priority',
         'status',
         'assigned_to',
+        'created_by',
     ];
 
     protected $casts = [
@@ -39,6 +40,12 @@ class Task extends Model
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+    // Relationship: Task created by user
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     // Helper methods for status
